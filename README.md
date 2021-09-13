@@ -12,5 +12,5 @@ Wait until current requests are handled and then shutdown the server. We use sig
 ## Using JSON Encoder :-
 Sometimes it is better to use Encoder than json.Marshal as we dont have to use additional buffer. This will matter when there are a lot of concurrent go routines being processed. It is also a bit faster.
 
-## Using Middleware :-
-It ensures Connectivity between 2 or more types applications or components
+## Validation of Data is very Important :-
+Middleware ensures Connectivity between 2 or more types applications or components. You can write your validation code in middleware to make sure data is validated and then only goes to your handlers
