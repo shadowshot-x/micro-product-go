@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	// "github.com/golang-jwt/jwt"
 	"github.com/shadowshot-x/micro-product-go/authservice/data"
+	"github.com/shadowshot-x/micro-product-go/authservice/jwt"
 )
 
 // we need this function to be private
@@ -17,14 +18,22 @@ func getSignedToken() (string, error) {
 	// aud - audience
 	// iss - issuer
 	// exp - expiration of the Token
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	// 	"aud": "frontend.knowsearch.ml",
+	// 	"iss": "knowsearch.ml",
+	// 	"exp": string(time.Now().Add(time.Minute * 1).Unix()),
+	// })
+	claimsMap := map[string]string{
 		"aud": "frontend.knowsearch.ml",
 		"iss": "knowsearch.ml",
-		"exp": time.Now().Add(time.Minute * 1).Unix(),
-	})
+		"exp": string(time.Now().Add(time.Minute * 1).Unix()),
+	}
 	// here we provide the shared secret. It should be very complex.\
 	// Aslo, it should be passed as a System Environment variable
-	tokenString, err := token.SignedString([]byte("S0m3_R7nd0m_ST41ng"))
+
+	secret := "S0m3_R4n90m_sss"
+	header := "HS256"
+	tokenString, err := jwt.GenerateToken(header, claimsMap, secret)
 	if err != nil {
 		return tokenString, err
 	}
@@ -66,10 +75,12 @@ func SigninHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 	tokenString, err := getSignedToken()
 	if err != nil {
+		fmt.Println(err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte("Internal Server Error"))
 		return
 	}
 
-	fmt.Println(tokenString)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte(tokenString))
 }

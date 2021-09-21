@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/shadowshot-x/micro-product-go/authservice"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 	// The Signin will send the JWT Token back as we are making microservices.
 	// JWT token will make sure that other services are protected.
 	// So, ultimately, we would need a middleware
-	mainRouter.HandleFunc("/signin", nil)
+	mainRouter.HandleFunc("/signin", authservice.SigninHandler)
 
 	// HTTP Server
 	// Add Time outs

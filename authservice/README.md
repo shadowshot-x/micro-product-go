@@ -16,3 +16,7 @@ This will be used for Documenting the API
 3. Password hash
 4. Username
 5. CreateDate
+
+## Running the Hashed Command
+
+`curl http://localhost:9090/signin --header 'Email:abc@gmail.com' --header 'Passwordhash:hashedme1'`

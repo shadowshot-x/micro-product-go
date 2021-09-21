@@ -1,7 +1,7 @@
 package data
 
 // User struct
-type User struct {
+type user struct {
 	email        string
 	username     string
 	passwordhash string
@@ -10,7 +10,7 @@ type User struct {
 }
 
 // currently this is acting as our database
-var UserList = []User{
+var userList = []user{
 	{
 		email:        "abc@gmail.com",
 		username:     "abc12",
@@ -29,17 +29,21 @@ var UserList = []User{
 
 // based on the email id provided, finds the user object
 // can be seen as the main constructor to start validation
-func GetUserObject(email string) (User, bool) {
+func GetUserObject(email string) (user, bool) {
 	//needs to be replaces using Database
-	for _, user := range UserList {
+	for _, user := range userList {
 		if user.email == email {
 			return user, true
 		}
 	}
-	return User{}, false
+	return user{}, false
 }
 
 // checks if the password hash is valid
-func (u *User) ValidatePasswordHash(pswdhash string) bool {
+func (u *user) ValidatePasswordHash(pswdhash string) bool {
 	return u.passwordhash == pswdhash
+}
+
+func AddUserObject() error {
+	return nil
 }
