@@ -26,7 +26,7 @@ func getSignedToken() (string, error) {
 	claimsMap := map[string]string{
 		"aud": "frontend.knowsearch.ml",
 		"iss": "knowsearch.ml",
-		"exp": string(time.Now().Add(time.Minute * 1).Unix()),
+		"exp": fmt.Sprint(time.Now().Add(time.Minute * 1).Unix()),
 	}
 	// here we provide the shared secret. It should be very complex.\
 	// Aslo, it should be passed as a System Environment variable

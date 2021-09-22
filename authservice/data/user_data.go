@@ -7,6 +7,7 @@ type user struct {
 	passwordhash string
 	fullname     string
 	createDate   string
+	role         int
 }
 
 // currently this is acting as our database
@@ -17,6 +18,7 @@ var userList = []user{
 		passwordhash: "hashedme1",
 		fullname:     "abc def",
 		createDate:   "1631600786",
+		role:         1,
 	},
 	{
 		email:        "chekme@example.com",
@@ -24,6 +26,7 @@ var userList = []user{
 		passwordhash: "hashedme2",
 		fullname:     "check me",
 		createDate:   "1631600837",
+		role:         0,
 	},
 }
 
@@ -44,6 +47,20 @@ func (u *user) ValidatePasswordHash(pswdhash string) bool {
 	return u.passwordhash == pswdhash
 }
 
-func AddUserObject() error {
-	return nil
+func AddUserObject(email string, username string, passwordhash string, fullname string, role int) bool {
+	newUser := user{
+		email:        email,
+		passwordhash: passwordhash,
+		username:     username,
+		fullname:     fullname,
+		role:         role,
+	}
+	// check if a user already exists
+	for _, ele := range userList {
+		if ele.email == email || ele.username == username {
+			return false
+		}
+	}
+	userList = append(userList, newUser)
+	return true
 }

@@ -12,7 +12,8 @@ func main() {
 	mainRouter := mux.NewRouter()
 
 	// route for sign up and signin. The Function will come from auth-service package
-	mainRouter.HandleFunc("/signup", nil)
+	// checks if given header params already exists. If not,it adds the user
+	mainRouter.HandleFunc("/signup", authservice.SignupHandler)
 
 	// The Signin will send the JWT Token back as we are making microservices.
 	// JWT token will make sure that other services are protected.
