@@ -20,3 +20,5 @@ This will be used for Documenting the API
 ## Running the Hashed Command
 
 `curl http://localhost:9090/signin --header 'Email:abc@gmail.com' --header 'Passwordhash:hashedme1'`
+
+`curl http://localhost:9090/signup --header 'Email:newuser@example.com' --header 'Passwordhash:hashedme1' --header 'Username:user77' --header 'Fullname:test user'`

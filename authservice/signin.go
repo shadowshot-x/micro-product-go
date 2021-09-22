@@ -58,6 +58,18 @@ func validateUser(email string, passwordHash string) (bool, error) {
 // if user not found or not validates, returns the Unauthorized error
 // if found, returns the JWT back. [How to return this?]
 func SigninHandler(rw http.ResponseWriter, r *http.Request) {
+
+	// validate the request first.
+	if _, ok := r.Header["Email"]; !ok {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Email Missing"))
+		return
+	}
+	if _, ok := r.Header["Passwordhash"]; !ok {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Passwordhash Missing"))
+		return
+	}
 	// lets see if the user exists
 	valid, err := validateUser(r.Header["Email"][0], r.Header["Passwordhash"][0])
 	if err != nil {
