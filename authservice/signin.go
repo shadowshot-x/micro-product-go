@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	// "github.com/golang-jwt/jwt"
 	"github.com/shadowshot-x/micro-product-go/authservice/data"
 	"github.com/shadowshot-x/micro-product-go/authservice/jwt"
 )
@@ -80,7 +79,7 @@ func SigninHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if !valid {
-		// this means either the password is wrong
+		// this means the password is wrong
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte("Incorrect Password"))
 		return

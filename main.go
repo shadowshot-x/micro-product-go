@@ -21,7 +21,7 @@ func main() {
 	// So, ultimately, we would need a middleware
 	authRouter.HandleFunc("/signin", authservice.SigninHandler)
 
-	// Add the Middleware to different subrouter will
+	// Add the Middleware to different subrouter
 	// HTTP Server
 	// Add Time outs
 	server := &http.Server{

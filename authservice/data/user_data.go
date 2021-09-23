@@ -47,7 +47,9 @@ func (u *user) ValidatePasswordHash(pswdhash string) bool {
 	return u.passwordhash == pswdhash
 }
 
+// this simply adds the user to the list
 func AddUserObject(email string, username string, passwordhash string, fullname string, role int) bool {
+	// declare the new user object
 	newUser := user{
 		email:        email,
 		passwordhash: passwordhash,
