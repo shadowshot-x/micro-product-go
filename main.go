@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/shadowshot-x/micro-product-go/authservice"
 )
@@ -21,12 +22,14 @@ func main() {
 	// So, ultimately, we would need a middleware
 	authRouter.HandleFunc("/signin", authservice.SigninHandler)
 
+	// CORS Header
+	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
 	// Add the Middleware to different subrouter
 	// HTTP Server
 	// Add Time outs
 	server := &http.Server{
 		Addr:    "127.0.0.1:9090",
-		Handler: mainRouter,
+		Handler: ch(mainRouter),
 	}
 	err := server.ListenAndServe()
 	if err != nil {

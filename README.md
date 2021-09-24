@@ -19,3 +19,6 @@ Middleware ensures Connectivity between 2 or more types applications or componen
 `docker build . -t product-go-micro`
 
 `docker run --network host -d a3faa264fcc3`
+
+## Using CORS
+Cross Origin Resource Sharing. Good security measure to protect the websites from malicious calls. It defines origins allowed to talk to the API. If source is not allowed, we reject the request.If we need to pass authentication headers like cookies the Origin Source should NOT be *. Like in this case where authentication using JWT is happening.

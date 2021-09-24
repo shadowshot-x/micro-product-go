@@ -1,0 +1,5 @@
+info: {}
+paths: {}
+produces:
+- application/json
+swagger: "2.0"
