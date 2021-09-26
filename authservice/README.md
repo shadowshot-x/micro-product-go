@@ -29,4 +29,4 @@ This will be used for Documenting the API
 
 `curl http://localhost:9090/auth/signin --header 'Email:abc@gmail.com' --header 'Passwordhash:hashedme1'`
 
-`curl http://localhost:9090/auth/signup --header 'Email:newuser@example.com' --header 'Passwordhash:hashedme1' --header 'Username:user77' --header 'Fullname:test user'`
+`curl http://localhost:9090/auth/signup --request POST --header 'Email:newuser@example.com' --header 'Passwordhash:hashedme1' --header 'Username:user77' --header 'Fullname:test user'`
