@@ -7,6 +7,8 @@ import (
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/shadowshot-x/micro-product-go/authservice"
+	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
+	"github.com/shadowshot-x/micro-product-go/clientclaims"
 )
 
 func main() {
@@ -21,6 +23,11 @@ func main() {
 	// JWT token will make sure that other services are protected.
 	// So, ultimately, we would need a middleware
 	authRouter.HandleFunc("/signin", authservice.SigninHandler).Methods("GET")
+
+	// File Upload SubRouter
+	claimsRouter := mainRouter.PathPrefix("/claims").Subrouter()
+	claimsRouter.HandleFunc("/upload", clientclaims.UploadFile)
+	claimsRouter.Use(middleware.TokenValidationMiddleware)
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
