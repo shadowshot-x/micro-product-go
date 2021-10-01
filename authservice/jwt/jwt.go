@@ -21,8 +21,7 @@ func GenerateToken(header string, payload map[string]string, secret string) (str
 	// Now we base encode this string
 	payloadstr, err := json.Marshal(payload)
 	if err != nil {
-		fmt.Println("Error generating Token")
-		return string(payloadstr), err
+		return string(payloadstr), fmt.Errorf("Error generating token when encoding payload to string: %w", err)
 	}
 	payload64 := base64.StdEncoding.EncodeToString(payloadstr)
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	gohandlers "github.com/gorilla/handlers"
@@ -9,26 +8,39 @@ import (
 	"github.com/shadowshot-x/micro-product-go/authservice"
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
+	"go.uber.org/zap"
 )
 
 func main() {
+	log, _ := zap.NewProduction()
+	defer log.Sync()
+
+	log.Info("Starting...")
+
 	mainRouter := mux.NewRouter()
+
+	suc := authservice.NewSignupController(log)
+	sic := authservice.NewSigninController(log)
+	uc := clientclaims.NewUploadController(log)
+	dc := clientclaims.NewDownloadController(log)
+	tm := middleware.NewTokenMiddleware(log)
+
 	// We will create a Subrouter for Authentication service
 	// route for sign up and signin. The Function will come from auth-service package
 	// checks if given header params already exists. If not,it adds the user
 	authRouter := mainRouter.PathPrefix("/auth").Subrouter()
-	authRouter.HandleFunc("/signup", authservice.SignupHandler).Methods("POST")
+	authRouter.HandleFunc("/signup", suc.SignupHandler).Methods("POST")
 
 	// The Signin will send the JWT Token back as we are making microservices.
 	// JWT token will make sure that other services are protected.
 	// So, ultimately, we would need a middleware
-	authRouter.HandleFunc("/signin", authservice.SigninHandler).Methods("GET")
+	authRouter.HandleFunc("/signin", sic.SigninHandler).Methods("GET")
 
 	// File Upload SubRouter
 	claimsRouter := mainRouter.PathPrefix("/claims").Subrouter()
-	claimsRouter.HandleFunc("/upload", clientclaims.UploadFile)
-	claimsRouter.HandleFunc("/download", clientclaims.DownloadFile)
-	claimsRouter.Use(middleware.TokenValidationMiddleware)
+	claimsRouter.HandleFunc("/upload", uc.UploadFile)
+	claimsRouter.HandleFunc("/download", dc.DownloadFile)
+	claimsRouter.Use(tm.TokenValidationMiddleware)
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
@@ -41,6 +53,6 @@ func main() {
 	}
 	err := server.ListenAndServe()
 	if err != nil {
-		fmt.Println("Error Booting the Server")
+		log.Error("Error Booting the Server", zap.Error(err))
 	}
 }
