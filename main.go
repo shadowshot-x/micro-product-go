@@ -27,6 +27,7 @@ func main() {
 	// File Upload SubRouter
 	claimsRouter := mainRouter.PathPrefix("/claims").Subrouter()
 	claimsRouter.HandleFunc("/upload", clientclaims.UploadFile)
+	claimsRouter.HandleFunc("/download", clientclaims.DownloadFile)
 	claimsRouter.Use(middleware.TokenValidationMiddleware)
 
 	// CORS Header

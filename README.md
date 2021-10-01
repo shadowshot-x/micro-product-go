@@ -25,3 +25,5 @@ Cross Origin Resource Sharing. Good security measure to protect the websites fro
 
 ## File Handling
 To Handle files usign a Golang server, we should not store them on our disk but on some cloud storage facility like S3. We can use our code to retrieve and send them. Golang's HTTP Fileserver helps to deal with sending the files from server. It provides a Handler for this.
+
+To deal with very large files to make the data transfer efficient, we use GZipping. Time to compress and decompress is less than time taken for the unzipped file to be transferred.
