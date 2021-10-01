@@ -65,7 +65,6 @@ func ValidateToken(token string, secret string) (bool, error) {
 	h.Write([]byte(unsignedStr))
 
 	signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
-	fmt.Println(signature)
 
 	// if both the signature dont match, this means token is wrong
 	if signature != splitToken[2] {
