@@ -81,6 +81,7 @@ func (ctrl *DownloadController) DownloadFile(rw http.ResponseWriter, r *http.Req
 				rw.Write([]byte("Unable to read the claim file"))
 				return
 			}
+			ctrl.logger.Info("File Gzipped and Downloaded", zap.String("file", claim.Name()))
 			rw.WriteHeader(http.StatusOK)
 			rw.Write([]byte("File Gzipped and Downloaded"))
 		}

@@ -53,6 +53,7 @@ func (ctrl *UploadController) UploadFile(rw http.ResponseWriter, r *http.Request
 	}
 	io.Copy(f, file)
 
+	ctrl.logger.Info("File Uploaded Successfully", zap.String("file", fmt.Sprintf("./clientclaims/saveimgdir/%s", handler.Filename)))
 	// this means file upload successful
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte("File Uploaded Successfully"))

@@ -57,6 +57,7 @@ func (ctrl *SignupController) SignupHandler(rw http.ResponseWriter, r *http.Requ
 		rw.Write([]byte("Email or Username already exists"))
 		return
 	}
+	ctrl.logger.Info("User created", zap.String("email", r.Header["Email"][0]), zap.String("username", r.Header["Username"][0]))
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte("User Created"))
 }

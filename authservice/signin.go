@@ -122,6 +122,7 @@ func (ctrl *SigninController) SigninHandler(rw http.ResponseWriter, r *http.Requ
 		rw.Write([]byte("Internal Server Error"))
 		return
 	}
+	ctrl.logger.Info("Token sign", zap.String("token", tokenString), zap.String("email", r.Header["Email"][0]))
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(tokenString))
