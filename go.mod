@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
+	github.com/joho/godotenv v1.4.0
 	go.uber.org/zap v1.19.1
 )
 

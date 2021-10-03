@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+// GetSecret fetches the value for the JWT_SECRET from the environment variable
+func GetSecret() string {
+	return os.Getenv("JWT_SECRET")
+}
+
 // Function for generating the tokens.
 func GenerateToken(header string, payload map[string]string, secret string) (string, error) {
 	// create a new hash of type sha256. We pass the secret key to it
@@ -73,8 +78,4 @@ func ValidateToken(token string, secret string) (bool, error) {
 	}
 	// This means the token matches
 	return true, nil
-}
-
-func GetSecret() string {
-	return os.Getenv("JWT_SECRET")
 }
