@@ -54,10 +54,12 @@ func getSignedToken() (string, error) {
 		"iss": "knowsearch.ml",
 		"exp": fmt.Sprint(time.Now().Add(time.Minute * 1).Unix()),
 	}
-	// here we provide the shared secret. It should be very complex.\
-	// Aslo, it should be passed as a System Environment variable
 
-	secret := "S0m3_R4n90m_sss"
+	secret := jwt.GetSecret()
+	if secret == "" {
+		return "", errors.New("empty JWT secret")
+	}
+
 	header := "HS256"
 	tokenString, err := jwt.GenerateToken(header, claimsMap, secret)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/shadowshot-x/micro-product-go/authservice"
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
@@ -16,6 +17,12 @@ func main() {
 	defer log.Sync()
 
 	log.Info("Starting...")
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Error("Error loading .env file", zap.Error(err))
+	}
 
 	mainRouter := mux.NewRouter()
 
@@ -51,7 +58,7 @@ func main() {
 		Addr:    "127.0.0.1:9090",
 		Handler: ch(mainRouter),
 	}
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Error("Error Booting the Server", zap.Error(err))
 	}
