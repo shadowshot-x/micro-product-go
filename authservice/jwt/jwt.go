@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -72,4 +73,8 @@ func ValidateToken(token string, secret string) (bool, error) {
 	}
 	// This means the token matches
 	return true, nil
+}
+
+func GetSecret() string {
+	return os.Getenv("JWT_SECRET")
 }

@@ -31,7 +31,16 @@ func (ctrl *TokenMiddleware) TokenValidationMiddleware(next http.Handler) http.H
 			return
 		}
 		token := r.Header["Token"][0]
-		check, err := jwt.ValidateToken(token, "S0m3_R4n90m_sss")
+
+		secret := jwt.GetSecret()
+		if secret == "" {
+			ctrl.logger.Error("Empty JWT secret")
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte("Internal Server Error"))
+			return
+		}
+
+		check, err := jwt.ValidateToken(token, secret)
 		if err != nil {
 			ctrl.logger.Error("Token Validation Failed", zap.String("token", token))
 			rw.WriteHeader(http.StatusInternalServerError)
