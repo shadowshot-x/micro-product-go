@@ -1,5 +1,13 @@
-info: {}
+basePath: /auth
+consumes:
+- application/json
+info:
+  description: Documentation for Authentication of Product API
+  title: of Product API
+  version: 1.0.0
 paths: {}
 produces:
 - application/json
+schemes:
+- http
 swagger: "2.0"
