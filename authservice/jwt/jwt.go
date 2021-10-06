@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	TOKEN_IS_CORRUPT = "Token is corrupt"
-	INVALID_TOKEN    = "Invalid Token"
-	TOKEN_EXPIRED    = "Token Expired"
+	CORRUPT_TOKEN = "Corrupt Token"
+	INVALID_TOKEN = "Invalid Token"
+	EXPIRED_TOKEN = "Expired Token"
 )
 
 // claims are attributes.
@@ -70,7 +70,7 @@ func ValidateToken(token string, secret string) error {
 	splitToken := strings.Split(token, ".")
 	// if length is not 3, we know that the token is corrupt
 	if len(splitToken) != 3 {
-		return errors.New(TOKEN_IS_CORRUPT)
+		return errors.New(CORRUPT_TOKEN)
 	}
 
 	// decode the header and payload back to strings
@@ -101,7 +101,7 @@ func ValidateToken(token string, secret string) error {
 
 	//Check if token is expired
 	if payloadMap.Exp < fmt.Sprint(time.Now().Unix()) {
-		return errors.New(TOKEN_EXPIRED)
+		return errors.New(EXPIRED_TOKEN)
 	}
 
 	// This means the token matches

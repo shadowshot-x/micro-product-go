@@ -45,7 +45,7 @@ func (ctrl *TokenMiddleware) TokenValidationMiddleware(next http.Handler) http.H
 		if err != nil {
 			errInString := fmt.Sprint(err)
 			ctrl.logger.Error(errInString, zap.String("token", token))
-			if errInString == jwt.TOKEN_IS_CORRUPT || errInString == jwt.INVALID_TOKEN || errInString == jwt.TOKEN_EXPIRED {
+			if errInString == jwt.CORRUPT_TOKEN || errInString == jwt.INVALID_TOKEN || errInString == jwt.EXPIRED_TOKEN {
 				rw.WriteHeader(http.StatusUnauthorized)
 			} else {
 				rw.WriteHeader(http.StatusInternalServerError)

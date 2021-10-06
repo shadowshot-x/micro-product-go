@@ -18,21 +18,21 @@ func TestTokenValidation(t *testing.T) {
 	if err != nil {
 		t.Error("Token generation failed")
 	}
-	//Token with long expiry date must not be expired
-	if TOKEN_EXPIRED == fmt.Sprint(ValidateToken(longExpiryToken, secret)) {
+	//Token with long expiry date must not be expired at this time
+	if EXPIRED_TOKEN == fmt.Sprint(ValidateToken(longExpiryToken, secret)) {
 		t.Error("Token must not be expired")
 	}
 
-	//Corrupt token i.e without 3 sections must throw 'Token is Corrupt' on validation
+	//Corrupt token i.e without 3 sections must throw 'Token is corrupt' on validation
 	corruptTokenString := "randomcorrupttokenstring"
-	if TOKEN_IS_CORRUPT != fmt.Sprint(ValidateToken(corruptTokenString, secret)) {
+	if CORRUPT_TOKEN != fmt.Sprint(ValidateToken(corruptTokenString, secret)) {
 		t.Error("Should throw 'Token is corrupt' for corrupt tokens")
 	}
 
 	//Invalid token i.e signature mismatched token must throw 'Invalid Token' on validation
 	invalidTokenString := longExpiryToken + "randomsignaturesuffix"
 	if INVALID_TOKEN != fmt.Sprint(ValidateToken(invalidTokenString, secret)) {
-		t.Error("Should throw 'Token is invalid' for invalid tokens")
+		t.Error("Should throw 'Invalid Token' for invalid tokens")
 	}
 
 	shortExpiryClaims := ClaimsMap{
@@ -48,7 +48,7 @@ func TestTokenValidation(t *testing.T) {
 	time.Sleep(5 * time.Second)
 
 	//Expired token must throw 'Token Expired' on validation
-	if TOKEN_EXPIRED != fmt.Sprint(ValidateToken(shortExpiryToken, secret)) {
+	if EXPIRED_TOKEN != fmt.Sprint(ValidateToken(shortExpiryToken, secret)) {
 		t.Error("Failed to detect expired token")
 	}
 
