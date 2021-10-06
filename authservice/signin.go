@@ -41,18 +41,18 @@ func NewSigninController(logger *zap.Logger) *SigninController {
 func getSignedToken() (string, error) {
 	// we make a JWT Token here with signing method of ES256 and claims.
 	// claims are attributes.
-	// aud - audience
-	// iss - issuer
-	// exp - expiration of the Token
+	// Aud - audience
+	// Iss - issuer
+	// Exp - expiration of the Token
 	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	// 	"aud": "frontend.knowsearch.ml",
-	// 	"iss": "knowsearch.ml",
-	// 	"exp": string(time.Now().Add(time.Minute * 1).Unix()),
+	// 	"Aud": "frontend.knowsearch.ml",
+	// 	"Iss": "knowsearch.ml",
+	// 	"Exp": string(time.Now().Add(time.Minute * 1).Unix()),
 	// })
-	claimsMap := map[string]string{
-		"aud": "frontend.knowsearch.ml",
-		"iss": "knowsearch.ml",
-		"exp": fmt.Sprint(time.Now().Add(time.Minute * 1).Unix()),
+	claimsMap := jwt.ClaimsMap{
+		Aud: "frontend.knowsearch.ml",
+		Iss: "knowsearch.ml",
+		Exp: fmt.Sprint(time.Now().Add(time.Minute * 1).Unix()),
 	}
 
 	secret := jwt.GetSecret()
