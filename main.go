@@ -9,6 +9,7 @@ import (
 	"github.com/shadowshot-x/micro-product-go/authservice"
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
+	"github.com/shadowshot-x/micro-product-go/productservice"
 	"go.uber.org/zap"
 )
 
@@ -31,6 +32,7 @@ func main() {
 	uc := clientclaims.NewUploadController(log)
 	dc := clientclaims.NewDownloadController(log)
 	tm := middleware.NewTokenMiddleware(log)
+	pc := productservice.NewProductController(log)
 
 	// We will create a Subrouter for Authentication service
 	// route for sign up and signin. The Function will come from auth-service package
@@ -48,6 +50,12 @@ func main() {
 	claimsRouter.HandleFunc("/upload", uc.UploadFile)
 	claimsRouter.HandleFunc("/download", dc.DownloadFile)
 	claimsRouter.Use(tm.TokenValidationMiddleware)
+
+	//Initialize the Gorm connection
+	pc.InitGormConnection()
+	productRouter := mainRouter.PathPrefix("/product").Subrouter()
+	productRouter.HandleFunc("/getprods", pc.GetAllProductsHandler).Methods("GET")
+	productRouter.HandleFunc("/addprod", pc.AddProductHandler).Methods("POST")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
