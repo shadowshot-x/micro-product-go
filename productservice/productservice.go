@@ -64,6 +64,29 @@ func (ctrl *ProductController) GetAllProductsHandler(rw http.ResponseWriter, r *
 	json.NewEncoder(rw).Encode(AllProducts)
 }
 
+func (ctrl *ProductController) GetAllProductByIdHandler(rw http.ResponseWriter, r *http.Request) {
+	// we know we will get a list of all products with a certain id.
+	Products := store.Product{}
+	if _, ok := r.Header["Id"]; !ok {
+		ctrl.logger.Warn("Id was not found in the header")
+		handleNotInHeader(rw, r, "Id")
+		return
+	}
+
+	// here db.First fetches the first existing Elements in Products and stores them in Product
+	// we need to record errors because if none exist, that is an error.
+	err := db.First(&Products, r.Header["Id"][0]).Error
+
+	if err != nil {
+		ctrl.logger.Error("The stated record was not found")
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Record not found"))
+		return
+	}
+	// We can Send back all values to the ResponseWriter by jsonencoding the results
+	json.NewEncoder(rw).Encode(Products)
+}
+
 func handleNotInHeader(rw http.ResponseWriter, r *http.Request, param string) {
 	rw.WriteHeader(http.StatusBadRequest)
 	rw.Write([]byte(fmt.Sprintf("%s Missing", param)))

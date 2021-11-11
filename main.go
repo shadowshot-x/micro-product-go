@@ -56,6 +56,7 @@ func main() {
 	productRouter := mainRouter.PathPrefix("/product").Subrouter()
 	productRouter.HandleFunc("/getprods", pc.GetAllProductsHandler).Methods("GET")
 	productRouter.HandleFunc("/addprod", pc.AddProductHandler).Methods("POST")
+	productRouter.HandleFunc("/getprodbyid", pc.GetAllProductByIdHandler).Methods("GET")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
