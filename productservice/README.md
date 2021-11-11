@@ -7,3 +7,11 @@
 
 ## Get One Product by Id
 `curl http://localhost:9090/product/getprodbyid --request GET --header 'Id:1'`
+
+## Delete Product by Id
+`curl http://localhost:9090/product/deletebyid --request DELETE --header 'Id:2'`
+
+## Custom Query Examples
+`curl http://localhost:9090/product/customquery --request GET --header 'Type:get' --header 'Query:SELECT name FROM products;'`
+
+`curl http://localhost:9090/product/customquery --request GET --header 'Type:get' --header "Query:UPDATE products SET name = \"prod1\"  WHERE id = 3;"`
