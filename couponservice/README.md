@@ -1,0 +1,3 @@
+# Redis Database Usage with Minikube
+
+We are building a coupon service which is essentially like a random draw for some successful payment recieved. Still have to decide the logic for Coupon Allotment (These will be for certain organizations with us with a name, description and discount code). We will use Redis NoSQL Database with this and go-redis. We will then make the image of the service and deploy the redis instance and image to a minikube kubernetes cluster. The essential commands will be in this Readme.
