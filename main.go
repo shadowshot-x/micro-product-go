@@ -9,6 +9,7 @@ import (
 	"github.com/shadowshot-x/micro-product-go/authservice"
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
+	"github.com/shadowshot-x/micro-product-go/couponservice"
 	"github.com/shadowshot-x/micro-product-go/productservice"
 	"go.uber.org/zap"
 )
@@ -33,6 +34,7 @@ func main() {
 	dc := clientclaims.NewDownloadController(log)
 	tm := middleware.NewTokenMiddleware(log)
 	pc := productservice.NewProductController(log)
+	cc := couponservice.NewCouponStreamController(log)
 
 	// We will create a Subrouter for Authentication service
 	// route for sign up and signin. The Function will come from auth-service package
@@ -52,13 +54,18 @@ func main() {
 	claimsRouter.Use(tm.TokenValidationMiddleware)
 
 	//Initialize the Gorm connection
-	pc.InitGormConnection()
+	// pc.InitGormConnection()
 	productRouter := mainRouter.PathPrefix("/product").Subrouter()
 	productRouter.HandleFunc("/getprods", pc.GetAllProductsHandler).Methods("GET")
 	productRouter.HandleFunc("/addprod", pc.AddProductHandler).Methods("POST")
 	productRouter.HandleFunc("/getprodbyid", pc.GetAllProductByIdHandler).Methods("GET")
 	productRouter.HandleFunc("/deletebyid", pc.DeleteProductHandler).Methods("DELETE")
 	productRouter.HandleFunc("/customquery", pc.CustomQueryHandler).Methods("GET", "POST")
+
+	//Coupon Service SubRouter
+	// couponRouter := mainRouter.PathPrefix("/coupon").Subrouter()
+	cc.CouponStreamGenerator()
+	// couponRouter.HandleFunc("/addCoupon", cc.).Methods("GET")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
