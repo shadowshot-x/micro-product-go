@@ -66,7 +66,7 @@ func main() {
 
 	//Coupon Service SubRouter
 	couponRouter := mainRouter.PathPrefix("/coupon").Subrouter()
-	couponRouter.HandleFunc("/addCoupon", cc.AddCouponList).Methods("GET")
+	couponRouter.HandleFunc("/addcoupon", cc.AddCouponList).Methods("POST")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))

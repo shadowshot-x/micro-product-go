@@ -2,6 +2,7 @@ package couponservice
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -49,9 +50,17 @@ func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
 		DB:       0,
 	})
 
-	// congratulations, we set up a connection and pushed a key-value pair to redis
-	status := client.Set(ctx, "couponCodeSetCheck", "running", 0)
-	logger.Info("Check out the status", zap.Any("redis status", status))
+	_, err := client.Ping(ctx).Result()
+
+	if err != nil {
+		logger.Error("Redis connection failed")
+		return nil
+	}
+
+	logger.Info("Redis Instance Started", zap.Any("server details", map[string]interface{}{
+		"Host":    client.Options().Addr,
+		"Network": client.Options().Network,
+	}))
 
 	return client
 }
@@ -77,17 +86,31 @@ func (ctrl *StreamController) AddCouponList(rw http.ResponseWriter, r *http.Requ
 		handleNotInHeader(rw, r, "Description")
 		return
 	}
+	if _, ok := r.Header["Couponregion"]; !ok {
+		ctrl.logger.Warn("Coupon Region was not found in the header")
+		handleNotInHeader(rw, r, "Region")
+		return
+	}
 
 	coupon := store.Coupon{
 		Name:        r.Header["Couponname"][0],
 		VendorName:  r.Header["Couponvendor"][0],
 		Code:        r.Header["Couponcode"][0],
 		Description: r.Header["Coupondescription"][0],
+		Region:      r.Header["Couponregion"][0],
+	}
+
+	couponJson, err := json.Marshal(coupon)
+	if err != nil {
+		ctrl.logger.Error("Cannot Marshal coupon", zap.Error(err))
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("An Internal server error ocurred"))
+		return
 	}
 
 	// this automatically handles cases for new users.
 	// if we want an already existing list and not create a new list, we use lpushx/rpushx
-	status, err := ctrl.rdbi.RPush(ctx, r.Header["Couponvendor"][0], coupon).Result()
+	_, err = ctrl.rdbi.RPush(ctx, coupon.VendorName, []interface{}{couponJson}).Result()
 	if err != nil {
 		ctrl.logger.Error("Fatal Redis Error", zap.Error(err))
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -95,11 +118,36 @@ func (ctrl *StreamController) AddCouponList(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if status == 0 {
+	// We have 4 regions. I want 4 streams to be there for each region. This will be given by Couponregion.
+	// Any number of consumers can poll from this stream coming from that region.
+
+	// it will be wise to put a string check over here. We dont need to add new streams if region is corrupt in Http request
+	// Also, we need pretty flexible region names. We need to minimize Hardcoding in our application.
+	region := r.Header["Couponregion"][0]
+	if region != "APAC" && region != "NA" && region != "EU" && region == "SA" {
+		// region does not exist.
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Could not append your Request to Redis"))
+		rw.Write([]byte("Provided Region does not exist"))
 		return
 	}
 
-	// add logic to add to a stream
+	err = ctrl.rdbi.XAdd(ctx, &redis.XAddArgs{
+		Stream:       "coupon-" + r.Header["Couponregion"][0],
+		MaxLen:       0,
+		MaxLenApprox: 0,
+		ID:           "",
+		Values:       []interface{}{couponJson},
+	}).Err()
+
+	if err != nil {
+		ctrl.logger.Error("Fatal Redis Error", zap.Error(err))
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("An Internal server error ocurred"))
+		return
+	}
+
+	ctrl.logger.Info("Coupon added to the stream")
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte("Coupon added to Region Stream"))
 }

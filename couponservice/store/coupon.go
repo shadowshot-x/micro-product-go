@@ -5,4 +5,5 @@ type Coupon struct {
 	Name        string `json:name`
 	Description string `json:description`
 	VendorName  string `json:vendor`
+	Region      string `json:region`
 }
