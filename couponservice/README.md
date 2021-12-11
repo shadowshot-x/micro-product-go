@@ -12,3 +12,5 @@ We are making a microservice that has a coupon code distribution instance. This 
 ## Redis Database
 
 Redis is an open source database that can be treated as a key-value store that we can use for Database purposes(NoSQL), Caching and for Message brokering.
+
+`$ docker run --name redis-test-instance -p 6379:6379 -d redis`
