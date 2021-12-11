@@ -34,7 +34,9 @@ func main() {
 	dc := clientclaims.NewDownloadController(log)
 	tm := middleware.NewTokenMiddleware(log)
 	pc := productservice.NewProductController(log)
-	cc := couponservice.NewCouponStreamController(log)
+
+	redisInstance := couponservice.RedisInstanceGenerator(log)
+	cc := couponservice.NewCouponStreamController(log, redisInstance)
 
 	// We will create a Subrouter for Authentication service
 	// route for sign up and signin. The Function will come from auth-service package
@@ -63,9 +65,8 @@ func main() {
 	productRouter.HandleFunc("/customquery", pc.CustomQueryHandler).Methods("GET", "POST")
 
 	//Coupon Service SubRouter
-	// couponRouter := mainRouter.PathPrefix("/coupon").Subrouter()
-	cc.CouponStreamGenerator()
-	// couponRouter.HandleFunc("/addCoupon", cc.).Methods("GET")
+	couponRouter := mainRouter.PathPrefix("/coupon").Subrouter()
+	couponRouter.HandleFunc("/addCoupon", cc.AddCouponList).Methods("GET")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))

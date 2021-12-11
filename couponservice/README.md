@@ -13,4 +13,12 @@ We are making a microservice that has a coupon code distribution instance. This 
 
 Redis is an open source database that can be treated as a key-value store that we can use for Database purposes(NoSQL), Caching and for Message brokering.
 
-`$ docker run --name redis-test-instance -p 6379:6379 -d redis`
+We will run redis in a Docker container. This way we will have the image ready and we can deploy this to minikube.
+
+`$ docker run --name coupon-redis-instance -p 6379:6379 -d redis`
+
+## Redis Structure
+
+For every new merchant, lets add a new list to the Redis database with vendorname as the key. Each time vendor adds a coupon list, we should add it to the redis db list corresponding to that vendor name.
+
+`let me think some shit out`
