@@ -22,3 +22,7 @@ We will run redis in a Docker container. This way we will have the image ready a
 For every new merchant, lets add a new list to the Redis database with vendorname as the key. Each time vendor adds a coupon list, we should add it to the redis db list corresponding to that vendor name.
 
 `curl http://localhost:9090/coupon/addcoupon --request POST --header 'Couponname:off_50_flat' --header 'Couponvendor:vendor1' --header 'Coupondescription:Avail flat 50 off on all products' --header 'Couponcode:EU778' 'Couponregion:EU'`
+
+`curl http://localhost:9090/coupon/getvendorcoupons --request GET --header 'Vendorname:vendor1'`
+
+`curl http://localhost:9090/coupon/delregionstream --request DELETE --header 'Region:EU'`

@@ -132,11 +132,10 @@ func (ctrl *StreamController) AddCouponList(rw http.ResponseWriter, r *http.Requ
 	}
 
 	err = ctrl.rdbi.XAdd(ctx, &redis.XAddArgs{
-		Stream:       "coupon-" + r.Header["Couponregion"][0],
-		MaxLen:       0,
-		MaxLenApprox: 0,
-		ID:           "",
-		Values:       []interface{}{couponJson},
+		Stream: "coupon-" + r.Header["Couponregion"][0],
+		Values: map[string]interface{}{
+			"coupon": couponJson,
+		},
 	}).Err()
 
 	if err != nil {
@@ -150,4 +149,73 @@ func (ctrl *StreamController) AddCouponList(rw http.ResponseWriter, r *http.Requ
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte("Coupon added to Region Stream"))
+}
+
+// GetCouponForInternalValidation returns all the coupons of the certain vendor.
+// we might need this for internal validation if the need arises. It must be remembered
+// that the Redis database will be flushed every 24 hours. We dont want to fill the Database with excess data.
+func (ctrl *StreamController) GetCouponForInternalValidation(rw http.ResponseWriter, r *http.Request) {
+	// we ger vendor name in the header.
+	if _, ok := r.Header["Vendorname"]; !ok {
+		ctrl.logger.Warn("Vendor Name was not found in the header")
+		handleNotInHeader(rw, r, "vendor")
+		return
+	}
+
+	res, err := ctrl.rdbi.LRange(ctx, r.Header["Vendorname"][0], 0, 0).Result()
+
+	if err != nil {
+		ctrl.logger.Error("Fatal Redis Error", zap.Error(err))
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("An Internal server error ocurred"))
+		return
+	}
+
+	ctrl.logger.Info("Redis Info", zap.Any("listdata", res))
+
+	userResponse, err := json.Marshal(res)
+
+	if err != nil {
+		ctrl.logger.Error("Cannot Marshal []string", zap.Error(err))
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("An Internal server error ocurred"))
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte(userResponse))
+}
+
+// Lets assume that at any moment, You want to purge the stream. We need a method for that too.
+// We should use role authentication here.
+func (ctrl *StreamController) PurgeStream(rw http.ResponseWriter, r *http.Request) {
+	//Lets take in the region
+	if _, ok := r.Header["Region"]; !ok {
+		ctrl.logger.Warn("Region was not found in the header")
+		handleNotInHeader(rw, r, "region")
+		return
+	}
+
+	streamName := "coupon-" + r.Header["Region"][0]
+
+	// this deletes the redis stream for the given region
+	status, err := ctrl.rdbi.Del(ctx, streamName).Result()
+
+	if err != nil {
+		ctrl.logger.Error("Fatal Redis Error", zap.Error(err))
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("An Internal server error ocurred"))
+		return
+	}
+
+	if status >= 1 {
+		ctrl.logger.Info("Stream Deleted", zap.Any("streamName", streamName))
+		rw.WriteHeader(http.StatusOK)
+		rw.Write([]byte("Successfully deleted the stream"))
+		return
+	}
+
+	ctrl.logger.Info("Stream Does not Exist", zap.Any("streamName", streamName))
+	rw.WriteHeader(http.StatusBadRequest)
+	rw.Write([]byte("Stream does not exist."))
 }
