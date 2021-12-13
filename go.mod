@@ -10,7 +10,6 @@ require (
 	github.com/jasonlvhit/gocron v0.0.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.4.0
-	github.com/rs/xid v1.3.0
 	go.uber.org/zap v1.19.1
 )
 
