@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// A very simple consumer application
 func main() {
 	// instances that connect to the stream to read data are consumers.
 	// we use consumer groups to get read scalability.

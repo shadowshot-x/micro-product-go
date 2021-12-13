@@ -26,3 +26,38 @@ For every new merchant, lets add a new list to the Redis database with vendornam
 `curl http://localhost:9090/coupon/getvendorcoupons --request GET --header 'Vendorname:vendor1'`
 
 `curl http://localhost:9090/coupon/delregionstream --request DELETE --header 'Region:EU'`
+
+## Running the Redis Consumer Code [for testing with Minikube]
+
+We are using consumer groups of redis to read from a stream. It is a good practice as we want each message to used just once and in FIFO order. 
+
+`go run couponservice/couponregionclient/main.go`
+
+## Minikube Instructions
+
+We will push our image to dockerhub so that this can be downloaded by minikube. Do remember to login first.
+
+`docker push shadowshotx/product-go-micro`
+
+Now, we will deploy the .yaml files to create deployment and services.
+
+Lets start the minikube instance.
+`minikube start`
+
+`kubectl apply -f couponservice/deployments/redis-deployment.yaml`
+
+`kubectl apply -f couponservice/deployments/redis-service.yaml`
+
+`kubectl apply -f couponservice/deployments/go-micro-deployment.yaml`
+
+`kubectl apply -f couponservice/deployments/go-micro-service.yaml`
+
+Now, check the status of the services and pods by running
+
+`kubectl get pods`
+
+`kubectl get services`
+
+Remember to stop your minikube instance.
+
+`minikube stop`

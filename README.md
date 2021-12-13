@@ -16,9 +16,9 @@ Sometimes it is better to use Encoder than json.Marshal as we dont have to use a
 Middleware ensures Connectivity between 2 or more types applications or components. You can write your validation code in middleware to make sure data is validated and then only goes to your handlers
 
 ## Running using Docker Image
-`docker build . -t product-go-micro`
+`docker build . -t shadowshotx/product-go-micro`
 
-`docker run --network host -d a3faa264fcc3`
+`docker run --network host -d <image-name/id>`
 
 ## Using CORS
 Cross Origin Resource Sharing. Good security measure to protect the websites from malicious calls. It defines origins allowed to talk to the API. If source is not allowed, we reject the request.If we need to pass authentication headers like cookies the Origin Source should NOT be *. Like in this case where authentication using JWT is happening.

@@ -1,0 +1,29 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: redis-coupon-db # This will be the name of our deployment.
+  labels:
+    app: redis       # This is the label of the deployment
+spec:
+  selector:
+    matchLabels:     # We use these to select the labeled pods
+      app: redis
+      mservice: coupon
+      type: db
+  replicas: 2        # I would run 2 pods simultaneously
+  template:
+    metadata:
+      labels:        # Labels to be applied to the Pods in this deployment
+        app: redis
+        mservice: coupon
+        type: db
+    spec:            # This is the docker container specifications
+      containers:
+      - name: coupon-db
+        image: redis  # Image name
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 6379

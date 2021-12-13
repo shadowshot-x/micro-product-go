@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment                 # Type of Kubernetes resource
+metadata:
+  name: product-go-micro            # Unique name of the Kubernetes resource
+spec:
+  replicas: 3                    # Number of pods to run at any given time
+  selector:
+    matchLabels:
+      app: product-go-micro         # This deployment applies to any Pods matching the specified label
+  template:                      # This deployment will create a set of pods using the configurations in this template
+    metadata:
+      labels:                    # The labels that will be applied to all of the pods in this deployment
+        app: product-go-micro 
+    spec:
+      containers:
+      - name: product-go-micro
+        image: shadowshotx/product-go-micro
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 9090  
+        env:
+        - name: REDIS_HOST
+          value: redis-coupon-db
+        - name: REDIS_PORT
+          value: "6379" 
