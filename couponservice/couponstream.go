@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/jasonlvhit/gocron"
 	"github.com/shadowshot-x/micro-product-go/couponservice/store"
 	"go.uber.org/zap"
 )
@@ -33,9 +34,15 @@ func handleNotInHeader(rw http.ResponseWriter, r *http.Request, param string) {
 	rw.Write([]byte(fmt.Sprintf("%s Missing", param)))
 }
 
+func flushdb(rdbi *redis.Client) {
+	rdbi.FlushDB(ctx)
+}
+
 // This function is called by the main server to get the redis instance.
 // The instance is again returned to the controller for this package. Now all the functions can access this like zap logger.
 func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
+
+	// declare the essentials and make redis connections
 	var host = "localhost"
 	var port = "6379"
 	if os.Getenv("REDIS_HOST") != "" {
@@ -50,6 +57,8 @@ func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
 		DB:       0,
 	})
 
+	// check status of connection.
+	// It returns "PONG"
 	_, err := client.Ping(ctx).Result()
 
 	if err != nil {
@@ -62,6 +71,10 @@ func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
 		"Network": client.Options().Network,
 	}))
 
+	// this will make sure that every day at 12:00 AM, the database is flushed.
+	gocron.Every(1).Day().At("00:00").Do(flushdb, client)
+
+	// return the client to be used to router controller.
 	return client
 }
 
