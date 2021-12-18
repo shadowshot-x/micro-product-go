@@ -25,5 +25,5 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
-        ports:
+        ports:  # Main container port. We need not interact with this.
         - containerPort: 6379

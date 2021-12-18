@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service                
 metadata:
-  name: product-go-micro-service  
+  name: product-go-micro-service  # Service name
 spec:
-  type: NodePort  # When Node receives a request, 
+  type: NodePort  # This can be accessed using Node IP from outside
   ports:                       
   - name: http
     port: 9090  # Our service will run on http Port 9090
     targetPort: 9090  # Our application to exposed to this port 9090
   selector:
-    app: product-go-micro
+    app: product-go-micro # this selector matches labels and assigns all pods this service

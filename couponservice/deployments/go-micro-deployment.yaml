@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment                 # Type of Kubernetes resource
 metadata:
-  name: product-go-micro            # Unique name of the Kubernetes resource
+  name: product-go-micro            # Unique name of the Deployment
 spec:
-  replicas: 3                    # Number of pods to run at any given time
+  replicas: 3                    # Number of pods to run at any given time in the Node
   selector:
     matchLabels:
       app: product-go-micro         # This deployment applies to any Pods matching the specified label
@@ -13,16 +13,16 @@ spec:
         app: product-go-micro 
     spec:
       containers:
-      - name: product-go-micro
-        image: shadowshotx/product-go-micro
-        imagePullPolicy: IfNotPresent
+      - name: product-go-micro  # Name of the containers which will be run as pods.
+        image: shadowshotx/product-go-micro # We specify the image name in spec. This will be taken from docker hub
+        imagePullPolicy: IfNotPresent # We only pull if the latest image is not present
         resources:
           requests:
-            cpu: 100m
-            memory: 100Mi
-        ports:
+            cpu: 50m  # You can even specify the resources for each container! If this exceeds, you can spin up another instance
+            memory: 50Mi
+        ports:  # This is the main port where the container will wait for requests inside the node.
         - containerPort: 9090  
-        env:
+        env:  # Specified Environment variables to connect to Redis.
         - name: REDIS_HOST
           value: redis-coupon-db
         - name: REDIS_PORT
