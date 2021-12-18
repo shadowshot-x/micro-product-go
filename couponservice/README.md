@@ -63,3 +63,7 @@ Now, check the status of the services and pods by running
 Remember to stop your minikube instance.
 
 `minikube stop`
+
+## Workflow of the Architecture
+
+![coupon-redis-architecture drawio](https://user-images.githubusercontent.com/43992469/146631429-cd2b8236-c710-41dc-b29b-70ac6b089f76.png)
