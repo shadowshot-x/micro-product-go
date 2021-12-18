@@ -69,3 +69,8 @@ Remember to stop your minikube instance.
 ## Workflow of the Architecture
 
 ![coupon-redis-architecture drawio](https://user-images.githubusercontent.com/43992469/146631429-cd2b8236-c710-41dc-b29b-70ac6b089f76.png)
+
+## A look indise the Minikube Cluster
+
+![k8-micro-redis drawio](https://user-images.githubusercontent.com/43992469/146636850-ca7bfc11-6ea7-4b66-b0de-2679b82442fa.png)
+
