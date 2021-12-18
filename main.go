@@ -14,6 +14,10 @@ import (
 	"go.uber.org/zap"
 )
 
+func PingHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.Write([]byte("Your App seems Healthy"))
+}
+
 func main() {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
@@ -37,6 +41,9 @@ func main() {
 
 	redisInstance := couponservice.RedisInstanceGenerator(log)
 	cc := couponservice.NewCouponStreamController(log, redisInstance)
+
+	// ping function
+	mainRouter.HandleFunc("/ping", PingHandler)
 
 	// We will create a Subrouter for Authentication service
 	// route for sign up and signin. The Function will come from auth-service package
@@ -76,7 +83,7 @@ func main() {
 	// HTTP Server
 	// Add Time outs
 	server := &http.Server{
-		Addr:    "127.0.0.1:9090",
+		Addr:    ":9090",
 		Handler: ch(mainRouter),
 	}
 	err = server.ListenAndServe()

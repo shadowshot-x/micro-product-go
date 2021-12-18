@@ -50,6 +50,8 @@ Remember to have `minikube` and `kubectl` installed on your local.
 
 `kubectl apply -f couponservice/deployments/redis-service.yaml`
 
+Now wait for the Redis Instances to get up and running. Then run the following commands.
+
 `kubectl apply -f couponservice/deployments/go-micro-deployment.yaml`
 
 `kubectl apply -f couponservice/deployments/go-micro-service.yaml`

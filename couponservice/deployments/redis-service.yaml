@@ -7,7 +7,7 @@ metadata:
     mservice: coupon
     type: db
 spec:
-  type: NodePort  # we need this get the port of the node. Otherwise we get a cluster IP
+  type: ClusterIP  # we need this get the port of the node. Otherwise we get a cluster IP
   ports:
   - port: 6379       # Here we bind the ports to port of the service. Make sure the port is not utilized
     targetPort: 6379

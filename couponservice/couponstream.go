@@ -68,7 +68,7 @@ func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
 	_, err := client.Ping(ctx).Result()
 
 	if err != nil {
-		logger.Error("Redis connection failed")
+		logger.Error("Redis connection failed", zap.Error(err))
 		return nil
 	}
 
