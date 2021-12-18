@@ -44,6 +44,8 @@ Now, we will deploy the .yaml files to create deployment and services.
 Lets start the minikube instance.
 `minikube start`
 
+Remember to have `minikube` and `kubectl` installed on your local. 
+
 `kubectl apply -f couponservice/deployments/redis-deployment.yaml`
 
 `kubectl apply -f couponservice/deployments/redis-service.yaml`

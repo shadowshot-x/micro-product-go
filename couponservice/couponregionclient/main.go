@@ -30,13 +30,13 @@ func main() {
 	area := "coupon-EU"
 
 	// lets create a consumer group
-	// status, err := client.XGroupCreate(area, "client-EU", "0").Result()
-	// fmt.Println(status)
+	status, err := client.XGroupCreate(area, "client-EU", "0").Result()
+	fmt.Println(status)
 
-	// if err != nil {
-	// 	fmt.Println("Could not create group", err)
-	// 	return
-	// }
+	if err != nil {
+		fmt.Println("Could not create group", err)
+		return
+	}
 
 	// XReadGroup is used by groups to read from stream.
 	// Here we are using a special consumer id ">". This ensures that the message we are getting has

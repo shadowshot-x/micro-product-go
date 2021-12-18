@@ -34,6 +34,7 @@ func handleNotInHeader(rw http.ResponseWriter, r *http.Request, param string) {
 	rw.Write([]byte(fmt.Sprintf("%s Missing", param)))
 }
 
+// function to flush to the database
 func flushdb(rdbi *redis.Client) {
 	rdbi.FlushDB(ctx)
 }
@@ -45,12 +46,17 @@ func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
 	// declare the essentials and make redis connections
 	var host = "localhost"
 	var port = "6379"
+
+	// get credentials from the Environment Variables
 	if os.Getenv("REDIS_HOST") != "" {
 		host = os.Getenv("REDIS_HOST")
 	}
 	if string(os.Getenv("REDIS_PORT")) != "" {
 		port = string(os.Getenv("REDIS_PORT"))
 	}
+
+	// Declare the redis client
+	// We can keep a password as an environment variable. However, I wont use this for simplicity.
 	client := redis.NewClient(&redis.Options{
 		Addr:     host + ":" + port,
 		Password: "",
@@ -66,6 +72,7 @@ func RedisInstanceGenerator(logger *zap.Logger) *redis.Client {
 		return nil
 	}
 
+	// Lets call zap to get the instance.
 	logger.Info("Redis Instance Started", zap.Any("server details", map[string]interface{}{
 		"Host":    client.Options().Addr,
 		"Network": client.Options().Network,
