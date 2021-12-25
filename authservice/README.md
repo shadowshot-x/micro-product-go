@@ -1,6 +1,8 @@
 # Authentication Microservice. \[REST\]
 ## JWT
-I will creating my own JWT for authentication. This requires a key. H256 algo will be used to generate the signature.
+I will create my own JWT for authentication. This requires a key. H256 algo will be used to generate the signature.
+
+[Link for the Article](https://mattermost.com/blog/how-to-build-an-authentication-microservice-in-golang-from-scratch/)
 
 JWT has the following components
 1. Header \[base64 encoded\]
