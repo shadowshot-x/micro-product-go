@@ -2,10 +2,11 @@
 
 1. Prometheus
 2. Grafana
-3. Melody
+3. Mutex
+4. Melody - A very brief implementation
 
 ## Idea
-Lets create a simple Mutex based application. Anyone from Ops team can access a variable string. This can be obtained and freed using an http request. Anyone trying to access the resource should be given a Wait message while someone else is writing to it. We should be able to trace this and count metrics of different types. Also, lets create a simultaneous text log file to record the user activity who edit this and mutex activity. This string will be broadcasted via Websocket to anyone connected after each mutex release with the username who edited last. This can be for the Senior Management team to look at progress for a single project. 
+Lets create a simple Mutex based application. Anyone from Ops team can access a variable string. This can be obtained and freed using an http request. Anyone trying to access the resource should be given a Wait message while someone else is writing to it. We should be able to trace this and count metrics of different types. This string will be broadcasted via Websocket to anyone connected after each mutex release with the username who edited last. This can be for the Senior Management team to look at progress for a single project. 
 
 ## Workflow
 1. Developer checks the status of the request using API route `/check`. If not available, Developer should not make any other requests.
@@ -34,3 +35,6 @@ Change the String
 Release the Retrospective
 
 `curl localhost:9090/retrospective/release --request POST --header 'Username:ujjwal'`
+
+## Setting up Prometheus
+Prometheus actually looks for metrics. We can expose Prometheus metrics in our project via HTTP. Metrics can be seen just as a count of an event you have sent. This can be a successful or a failed event, you can count these occurances for your application. Prometheus can scale the metric monitoring for our application. We can set alerts based on ratio of successful and error events.
