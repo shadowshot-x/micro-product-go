@@ -10,8 +10,10 @@ import (
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
 	"github.com/shadowshot-x/micro-product-go/couponservice"
+	retrospectiveservice "github.com/shadowshot-x/micro-product-go/privateretrospectiveservice"
 	"github.com/shadowshot-x/micro-product-go/productservice"
 	"go.uber.org/zap"
+	"gopkg.in/olahol/melody.v1"
 )
 
 func PingHandler(rw http.ResponseWriter, r *http.Request) {
@@ -41,6 +43,9 @@ func main() {
 
 	redisInstance := couponservice.RedisInstanceGenerator(log)
 	cc := couponservice.NewCouponStreamController(log, redisInstance)
+
+	melodyInstance := melody.New()
+	rc := retrospectiveservice.NewRetrospectiveController(log, melodyInstance)
 
 	// ping function
 	mainRouter.HandleFunc("/ping", PingHandler)
@@ -76,6 +81,15 @@ func main() {
 	couponRouter.HandleFunc("/addcoupon", cc.AddCouponList).Methods("POST")
 	couponRouter.HandleFunc("/getvendorcoupons", cc.GetCouponForInternalValidation).Methods("GET")
 	couponRouter.HandleFunc("/delregionstream", cc.PurgeStream).Methods("DELETE")
+
+	// Retrospective Service SubRouter
+	retrospectiveRouter := mainRouter.PathPrefix("/retrospective").Subrouter()
+	retrospectiveRouter.HandleFunc("/wc", rc.AssignSocket).Methods("POST")
+	retrospectiveRouter.HandleFunc("/avail", rc.AvailRetrospective).Methods("GET")
+	retrospectiveRouter.HandleFunc("/release", rc.ReleaseRetrospective).Methods("POST")
+	retrospectiveRouter.HandleFunc("/check", rc.CheckAccess).Methods("GET")
+	retrospectiveRouter.HandleFunc("/checkstring", rc.BroadcastMessage).Methods("GET")
+	retrospectiveRouter.HandleFunc("/change", rc.ChangeRetrospective).Methods("POST")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))

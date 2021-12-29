@@ -1,6 +1,7 @@
-package couponservice
+package retrospectiveservice
 
 import (
+	"fmt"
 	"net/http"
 
 	"sync"
@@ -11,6 +12,11 @@ import (
 
 // we will control this with mutex
 var retrospective string
+
+func handleNotInHeader(rw http.ResponseWriter, r *http.Request, param string) {
+	rw.WriteHeader(http.StatusBadRequest)
+	rw.Write([]byte(fmt.Sprintf("%s Missing", param)))
+}
 
 // RetrospectiveController is the Real Time Socket route handler
 type RetrospectiveController struct {
@@ -50,6 +56,12 @@ func (ctrl *RetrospectiveController) CheckAccess(rw http.ResponseWriter, r *http
 }
 
 func (ctrl *RetrospectiveController) AvailRetrospective(rw http.ResponseWriter, r *http.Request) {
+	if _, ok := r.Header["Username"]; !ok {
+		ctrl.logger.Warn("User Name was not found in the header")
+		handleNotInHeader(rw, r, "user")
+		return
+	}
+
 	ctrl.status = true
 	ctrl.access.Lock()
 	ctrl.currentUser = r.Header["Username"][0]
@@ -59,6 +71,17 @@ func (ctrl *RetrospectiveController) AvailRetrospective(rw http.ResponseWriter, 
 }
 
 func (ctrl *RetrospectiveController) ChangeRetrospective(rw http.ResponseWriter, r *http.Request) {
+	if _, ok := r.Header["Username"]; !ok {
+		ctrl.logger.Warn("User Name was not found in the header")
+		handleNotInHeader(rw, r, "user")
+		return
+	}
+	if _, ok := r.Header["Retrospective"]; !ok {
+		ctrl.logger.Warn("Retrospective was not found in the header")
+		handleNotInHeader(rw, r, "retrospective")
+		return
+	}
+
 	if ctrl.currentUser == r.Header["Username"][0] && ctrl.status {
 		retrospective = r.Header["Retrospective"][0]
 		ctrl.logger.Info("Restrospective updated by user", zap.String("user", ctrl.currentUser))
@@ -78,6 +101,12 @@ func (ctrl *RetrospectiveController) ChangeRetrospective(rw http.ResponseWriter,
 }
 
 func (ctrl *RetrospectiveController) ReleaseRetrospective(rw http.ResponseWriter, r *http.Request) {
+	if _, ok := r.Header["Username"]; !ok {
+		ctrl.logger.Warn("User Name was not found in the header")
+		handleNotInHeader(rw, r, "user")
+		return
+	}
+
 	// only the current user should be able to call this.
 	if ctrl.currentUser == r.Header["Username"][0] && ctrl.status {
 		ctrl.access.Unlock()
@@ -87,7 +116,7 @@ func (ctrl *RetrospectiveController) ReleaseRetrospective(rw http.ResponseWriter
 	} else if !ctrl.status {
 		ctrl.logger.Warn("User tried to release resource without locking the resource")
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Retrospective Updated"))
+		rw.Write([]byte("Retrospective could not be released as not locked."))
 		// there should be an alert here
 	} else {
 		rw.WriteHeader(http.StatusConflict)

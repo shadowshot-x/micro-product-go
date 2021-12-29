@@ -18,3 +18,19 @@ Lets create a simple Mutex based application. Anyone from Ops team can access a 
 We will try to monitor this using Grafana and Prometheus. This is the main aim of this application.
 
 We will try to set up alerts if the string is occupied for a large amount of time and for every 2 such instances.
+
+Check the Status of the Retrospective Resource
+
+`curl localhost:9090/retrospective/check`
+
+Avail the Access to Retrospective String
+
+`curl localhost:9090/retrospective/avail --request GET --header 'Username:ujjwal'`
+
+Change the String
+
+`curl localhost:9090/retrospective/change --request POST --header 'Username:ujjwal' --header 'Retrospective:this is changed retrospective'`
+
+Release the Retrospective
+
+`curl localhost:9090/retrospective/release --request POST --header 'Username:ujjwal'`
