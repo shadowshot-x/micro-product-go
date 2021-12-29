@@ -1,5 +1,7 @@
 # Redis Database Usage with Minikube
 
+Temporary Link - https://docs.google.com/document/d/10-Jr488fS3_iUGBnu8iyh10Ou1BL8Hija0T9f3bDAvk/edit?usp=sharing
+
 We are building a coupon service which is essentially like a streaming service for some requests. We will use Redis Streams for Queuing. We will then make the image of the service and deploy the redis instance and image to a minikube kubernetes cluster. The essential commands will be in this Readme.
 
 ## Working of the Coupon Service
