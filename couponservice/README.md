@@ -7,9 +7,18 @@ We are building a coupon service which is essentially like a streaming service f
 ## Working of the Coupon Service
 
 We have 4 major regions (APAC, NA, SA, EU) with running service who want coupons to distribute to their local users. They constantly demand coupon codes from our server. As merchants add the coupons, they become available for redemption.
+## Workflow of the Architecture
+
+![coupon-redis-architecture drawio](https://user-images.githubusercontent.com/43992469/146631429-cd2b8236-c710-41dc-b29b-70ac6b089f76.png)
+
+## A look indise the Minikube Cluster
+
+![k8-micro-redis drawio](https://user-images.githubusercontent.com/43992469/146636850-ca7bfc11-6ea7-4b66-b0de-2679b82442fa.png)
 
 ## What we are Building?
 We are making a microservice that has a coupon code distribution instance. This can be demanded from different consumers. The coupons are stored in our database categorized based on merchants. The merchants add their codes to our database using REST API. For each merchant we have a Redis list. After every coupon addition, messages are added to redis stream based on the coupons in the list. These streams are subscibed by consumers who then get code based on requests. We also purge all the older requests every 24 hours if they have not been fulfilled.
+
+
 
 ## Redis Database
 
@@ -67,12 +76,4 @@ Now, check the status of the services and pods by running
 Remember to stop your minikube instance.
 
 `minikube stop`
-
-## Workflow of the Architecture
-
-![coupon-redis-architecture drawio](https://user-images.githubusercontent.com/43992469/146631429-cd2b8236-c710-41dc-b29b-70ac6b089f76.png)
-
-## A look indise the Minikube Cluster
-
-![k8-micro-redis drawio](https://user-images.githubusercontent.com/43992469/146636850-ca7bfc11-6ea7-4b66-b0de-2679b82442fa.png)
 
