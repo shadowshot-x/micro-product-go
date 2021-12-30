@@ -126,7 +126,7 @@ func main() {
 
 	// Adding Prometheus http handler to expose the metrics
 	// this will display our metrics as well as some standard metrics
-	mainRouter.Path("/metric-prometheus").Handler(promhttp.Handler())
+	mainRouter.Path("/metrics").Handler(promhttp.Handler())
 	// Add the Middleware to different subrouter
 	// HTTP Server
 	// Add Time outs

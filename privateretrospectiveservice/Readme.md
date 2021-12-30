@@ -38,3 +38,15 @@ Release the Retrospective
 
 ## Setting up Prometheus
 Prometheus actually looks for metrics. We can expose Prometheus metrics in our project via HTTP. Metrics can be seen just as a count of an event you have sent. This can be a successful or a failed event, you can count these occurances for your application. Prometheus can scale the metric monitoring for our application. We can set alerts based on ratio of successful and error events.
+
+`docker run -p 9091:9090 -v /home/ujjwal/Desktop/opensource/personal/product-go-micro/prometheus/prometheus.yml prom/prometheus`
+
+## Setting up Grafana
+
+We will use the OSS Release using a Docker Image of Grafana.
+
+`docker run -p 3000:3000 grafana/grafana-oss`
+
+Wait for the Migrations to complete and then open localhost:3000. The username and password default is `admin`
+
+Then, Create a Dashboard on this Docker Image. 
