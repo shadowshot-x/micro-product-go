@@ -1,5 +1,7 @@
 # Golang Server Project Best Practices
 
+### PS. Each Directory is a microservice and has its own Readme and each directory uses some new tech. So, do check it out.
+
 ## Dependency Injection :-
 In simple words, we want our functions and packages to receive the objects they depend on ie. We dont want to declare new instances inside packages to have control over them. For Eg :- Using Structs to declare the private methods and save logger as a variables. The methods can access the value of logger using `g.logger` in their domain.
 
