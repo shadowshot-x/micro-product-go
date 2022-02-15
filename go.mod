@@ -13,6 +13,7 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	go.uber.org/zap v1.19.1
 	gopkg.in/olahol/melody.v1 v1.0.0-20170518105555-d52139073376
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

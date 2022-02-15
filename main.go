@@ -13,6 +13,7 @@ import (
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
 	"github.com/shadowshot-x/micro-product-go/couponservice"
+	"github.com/shadowshot-x/micro-product-go/ordertransformerservice"
 	retrospectiveservice "github.com/shadowshot-x/micro-product-go/privateretrospectiveservice"
 	"github.com/shadowshot-x/micro-product-go/productservice"
 	"go.uber.org/zap"
@@ -69,6 +70,7 @@ func main() {
 	dc := clientclaims.NewDownloadController(log)
 	tm := middleware.NewTokenMiddleware(log)
 	pc := productservice.NewProductController(log)
+	transc := ordertransformerservice.NewTransformerController(log)
 
 	redisInstance := couponservice.RedisInstanceGenerator(log)
 	cc := couponservice.NewCouponStreamController(log, redisInstance)
@@ -120,6 +122,10 @@ func main() {
 	retrospectiveRouter.HandleFunc("/check", rc.CheckAccess).Methods("GET")
 	retrospectiveRouter.HandleFunc("/checkstring", rc.BroadcastMessage).Methods("GET")
 	retrospectiveRouter.HandleFunc("/change", rc.ChangeRetrospective).Methods("POST")
+
+	// Transformer Service SubRouter
+	transformerOrderRouter := mainRouter.PathPrefix("/transformer").Subrouter()
+	transformerOrderRouter.HandleFunc("/transform", transc.TransformerHandler).Methods("GET")
 
 	// CORS Header
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
