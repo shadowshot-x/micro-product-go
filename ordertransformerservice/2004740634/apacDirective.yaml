@@ -1,5 +1,0 @@
-
-region: APAC
-rulelist:
-  - amountfilter: "<18000"
-  - emailfilter: abc@example.com
