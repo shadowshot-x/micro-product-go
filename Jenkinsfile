@@ -24,17 +24,17 @@ pipeline {
                 sh 'make functional-tests'
             }
         }
-        stage("deploy") {
-            steps {
-                echo 'DEPLOY EXECUTION STARTED'
-            }
-        }
         stage("build") {
             steps {
                 echo 'BUILD EXECUTION STARTED'
                 sh 'go version'
                 sh 'go get ./...'
-                sh 'make build'
+                sh 'docker build . -t shadowshotx/product-go-micro'
+            }
+        }
+        stage("deploy") {
+            steps {
+                echo 'DEPLOY EXECUTION STARTED'
             }
         }
     }
