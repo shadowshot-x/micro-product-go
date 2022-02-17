@@ -1,0 +1,27 @@
+pipeline {
+
+    agent any
+
+    stages {
+        stage("build") {
+            steps {
+                echo 'BUILD EXECUTION STARTED'
+            }
+        }
+        stage("unit-test") {
+            steps {
+                echo 'UNIT TEST EXECUTION STARTED'
+            }
+        }
+        stage("functional-test") {
+            steps {
+                echo 'FUNCTIONAL TEST EXECUTION STARTED'
+            }
+        }
+        stage("deploy") {
+            steps {
+                echo 'DEPLOY EXECUTION STARTED'
+            }
+        }
+    }
+}

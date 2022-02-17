@@ -3,10 +3,13 @@ package ordertransformerservice
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/shadowshot-x/micro-product-go/ordertransformerservice/store"
 )
 
@@ -180,5 +183,28 @@ rulelist:
 			t.Fatalf("Incorrect ruleCompilation Generated. %v,  %v", rc, expectedRc)
 		}
 	})
+}
+
+func TestProcessOrderTransformtion(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", "https://httpbin.org/post", func(req *http.Request) (*http.Response, error) {
+		resp, err := httpmock.NewJsonResponse(200, "200 OK")
+		if err != nil {
+			return httpmock.NewStringResponse(500, "Error Generating Response"), nil
+		}
+		return resp, nil
+	})
+
+	resp, err := processOrderTransformation([]store.Order{})
+	if err != nil {
+		t.Fatalf("Unexpected Error Encountered :%v", err)
+	}
+	expected := "200 OK"
+
+	if !strings.Contains(resp, expected) {
+		t.Fatalf("Unexpected Message from server. %v", resp)
+	}
 
 }

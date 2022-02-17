@@ -36,16 +36,16 @@ const json_dir = "./ordertransformerservice/json_store/"
 // TransformerHandler is the Transformer route handler
 type TransformerController struct {
 	logger           *zap.Logger
-	store_json_dir   string
-	region_rules_dir string
+	Store_json_dir   string
+	Region_rules_dir string
 }
 
 // NewTransformerController returns a frsh Transformer controller
 func NewTransformerController(logger *zap.Logger) *TransformerController {
 	return &TransformerController{
 		logger:           logger,
-		store_json_dir:   json_dir,
-		region_rules_dir: rules_dir,
+		Store_json_dir:   json_dir,
+		Region_rules_dir: rules_dir,
 	}
 }
 
@@ -159,7 +159,7 @@ func validation(order store.Order, allRules RulesCompilation, region string) (bo
 	return true, nil
 }
 
-func processOrderTransformtion(finalFiles []store.Order) (string, error) {
+func processOrderTransformation(finalFiles []store.Order) (string, error) {
 	output := OrderTransformation{filteredOrders: finalFiles}
 	byteOutput, err := json.Marshal(output)
 	if err != nil {
@@ -191,7 +191,7 @@ func (ctrl *TransformerController) handleInternalError(rw http.ResponseWriter, r
 
 // adds the user to the database of users
 func (ctrl *TransformerController) TransformerHandler(rw http.ResponseWriter, r *http.Request) {
-	orderCompilation, ruleCompilation, err := parser(ctrl.store_json_dir, ctrl.region_rules_dir)
+	orderCompilation, ruleCompilation, err := parser(ctrl.Store_json_dir, ctrl.Region_rules_dir)
 	if err != nil {
 		ctrl.logger.Error("Error in Parsing orders and rules", zap.Any("error", err))
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -258,7 +258,7 @@ func (ctrl *TransformerController) TransformerHandler(rw http.ResponseWriter, r 
 		}
 	}
 
-	linkinfo, err := processOrderTransformtion(filteredFiles)
+	linkinfo, err := processOrderTransformation(filteredFiles)
 	if err != nil {
 		ctrl.logger.Error("Error in sending file processed orders", zap.Any("error", err))
 		rw.WriteHeader(http.StatusInternalServerError)
