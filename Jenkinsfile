@@ -12,14 +12,6 @@ pipeline {
     }
 
     stages {
-        stage("build") {
-            steps {
-                echo 'BUILD EXECUTION STARTED'
-                sh 'go version'
-                sh 'go get ./...'
-                sh 'make build'
-            }
-        }
         stage("unit-test") {
             steps {
                 echo 'UNIT TEST EXECUTION STARTED'
@@ -35,6 +27,14 @@ pipeline {
         stage("deploy") {
             steps {
                 echo 'DEPLOY EXECUTION STARTED'
+            }
+        }
+        stage("build") {
+            steps {
+                echo 'BUILD EXECUTION STARTED'
+                sh 'go version'
+                sh 'go get ./...'
+                sh 'make build'
             }
         }
     }
