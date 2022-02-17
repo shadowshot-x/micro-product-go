@@ -6,6 +6,7 @@ pipeline {
         stage("build") {
             steps {
                 echo 'BUILD EXECUTION STARTED'
+                sh 'make test'
             }
         }
         stage("unit-test") {
