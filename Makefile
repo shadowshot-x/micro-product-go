@@ -4,7 +4,7 @@ run:
 unit-tests:
 	go test ./...
 
-integration-tests:
+functional-tests:
 	go test ./functional_tests/transformer_test.go
 
 build:
