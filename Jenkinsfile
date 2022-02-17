@@ -12,27 +12,24 @@ pipeline {
     }
 
     stages {
-        stage('Pre Test') {
-            steps {
-                echo 'Installing dependencies'
-                sh 'go version'
-                sh 'go get -u golang.org/x/lint/golint'
-            }
-        }
         stage("build") {
             steps {
                 echo 'BUILD EXECUTION STARTED'
-                sh 'make test'
+                sh 'go version'
+                sh 'go get ./...'
+                sh 'make build'
             }
         }
         stage("unit-test") {
             steps {
                 echo 'UNIT TEST EXECUTION STARTED'
+                sh 'make unit-tests'
             }
         }
         stage("functional-test") {
             steps {
                 echo 'FUNCTIONAL TEST EXECUTION STARTED'
+                sh 'make functional-tests'
             }
         }
         stage("deploy") {
