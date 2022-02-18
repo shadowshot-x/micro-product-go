@@ -1,9 +1,6 @@
 pipeline {
 
-     agent {
-        docker { image 'node:12.16.2'
-            args '-p 3000:3000' }
-    }
+    agent any
 
     tools {
         go 'go1.14'
@@ -35,9 +32,13 @@ pipeline {
                 sh 'docker build . -t shadowshotx/product-go-micro'
             }
         }
-        stage("deploy") {
+        stage('Docker Push') {
+            agent any
             steps {
-                echo 'DEPLOY EXECUTION STARTED'
+                withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                sh 'docker push shanem/spring-petclinic:latest'
+                }
             }
         }
     }
