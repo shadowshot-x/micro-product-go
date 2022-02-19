@@ -1,0 +1,6 @@
+region: APAC
+rulelist:
+  - amountfilter: "<18000"
+  - blacklistproduct:
+    - "1"
+  - emailfilter: abc@example.com
