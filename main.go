@@ -1,54 +1,45 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/shadowshot-x/micro-product-go/authservice"
 	"github.com/shadowshot-x/micro-product-go/authservice/middleware"
 	"github.com/shadowshot-x/micro-product-go/clientclaims"
 	"github.com/shadowshot-x/micro-product-go/couponservice"
+	"github.com/shadowshot-x/micro-product-go/monitormodule"
 	"github.com/shadowshot-x/micro-product-go/ordertransformerservice"
-	retrospectiveservice "github.com/shadowshot-x/micro-product-go/privateretrospectiveservice"
 	"github.com/shadowshot-x/micro-product-go/productservice"
 	"go.uber.org/zap"
-	"gopkg.in/olahol/melody.v1"
 )
 
 func PingHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.Write([]byte("Your App seems Healthy"))
 }
 
-// lets set up prometheus custom metrics
-var retrospectiveAvailSuccess = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "retrospective_avail_success",
-	Help: "Successful availing of Retrospective",
-})
-var retrospectiveAvailFail = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "retrospective_avail_fail",
-	Help: "Failure to avail Retrospective due to Mutex lock",
-})
-var retrospectiveUpdateSuccess = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "retrospective_update_success",
-	Help: "Successful updation of Retrospective",
-})
-var retrospectiveUpdateFail = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "retrospective_update_fail",
-	Help: "Failure to update Retrospective due to Mutex lock",
-})
-var retrospectiveReleaseSuccess = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "retrospective_release_success",
-	Help: "Successful release of Retrospective mutex",
-})
-var retrospectiveReleaseFail = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "retrospective_release_fail",
-	Help: "Failure to release Retrospective due to Authorization",
-})
+func simplePostHandler(rw http.ResponseWriter, r *http.Request) {
+	fileName, err := os.OpenFile("./metricDetails.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal("error in file ops", zap.Error(err))
+	}
+	defer fileName.Close()
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fileName.Write([]byte(reqBody))
+	fileName.Write([]byte("\n"))
+
+	rw.Write([]byte("Post Request Recieved for the Success"))
+}
 
 func main() {
 	log, _ := zap.NewProduction()
@@ -60,6 +51,12 @@ func main() {
 
 	if err != nil {
 		log.Error("Error loading .env file", zap.Error(err))
+	}
+
+	err = monitormodule.MonitorBinder(log)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	mainRouter := mux.NewRouter()
@@ -75,12 +72,9 @@ func main() {
 	redisInstance := couponservice.RedisInstanceGenerator(log)
 	cc := couponservice.NewCouponStreamController(log, redisInstance)
 
-	melodyInstance := melody.New()
-	rc := retrospectiveservice.NewRetrospectiveController(log, melodyInstance, retrospectiveAvailSuccess, retrospectiveAvailFail,
-		retrospectiveUpdateSuccess, retrospectiveUpdateFail, retrospectiveReleaseSuccess, retrospectiveReleaseFail)
-
 	// ping function
 	mainRouter.HandleFunc("/ping", PingHandler)
+	mainRouter.HandleFunc("/checkRoutine", simplePostHandler).Methods("POST")
 
 	// We will create a Subrouter for Authentication service
 	// route for sign up and signin. The Function will come from auth-service package
@@ -114,21 +108,12 @@ func main() {
 	couponRouter.HandleFunc("/getvendorcoupons", cc.GetCouponForInternalValidation).Methods("GET")
 	couponRouter.HandleFunc("/delregionstream", cc.PurgeStream).Methods("DELETE")
 
-	// Retrospective Service SubRouter
-	retrospectiveRouter := mainRouter.PathPrefix("/retrospective").Subrouter()
-	retrospectiveRouter.HandleFunc("/wc", rc.AssignSocket).Methods("POST")
-	retrospectiveRouter.HandleFunc("/avail", rc.AvailRetrospective).Methods("GET")
-	retrospectiveRouter.HandleFunc("/release", rc.ReleaseRetrospective).Methods("POST")
-	retrospectiveRouter.HandleFunc("/check", rc.CheckAccess).Methods("GET")
-	retrospectiveRouter.HandleFunc("/checkstring", rc.BroadcastMessage).Methods("GET")
-	retrospectiveRouter.HandleFunc("/change", rc.ChangeRetrospective).Methods("POST")
-
 	// Transformer Service SubRouter
 	transformerOrderRouter := mainRouter.PathPrefix("/transformer").Subrouter()
 	transformerOrderRouter.HandleFunc("/transform", transc.TransformerHandler).Methods("GET")
 
 	// CORS Header
-	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
+	cors := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
 
 	// Adding Prometheus http handler to expose the metrics
 	// this will display our metrics as well as some standard metrics
@@ -138,7 +123,7 @@ func main() {
 	// Add Time outs
 	server := &http.Server{
 		Addr:    ":9090",
-		Handler: ch(mainRouter),
+		Handler: cors(mainRouter),
 	}
 	err = server.ListenAndServe()
 	if err != nil {

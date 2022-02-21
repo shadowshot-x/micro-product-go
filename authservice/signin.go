@@ -20,20 +20,49 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/shadowshot-x/micro-product-go/authservice/data"
 	"github.com/shadowshot-x/micro-product-go/authservice/jwt"
 	"go.uber.org/zap"
 )
 
+var (
+	signinRequests = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "signin_total",
+		Help: "Total number of signup requests",
+	})
+	signinSuccess = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "signin_success",
+		Help: "Successful signup requests",
+	})
+	signinFail = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "signin_fail",
+		Help: "Failed signup requests",
+	})
+	signinError = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "signin_error",
+		Help: "Erroneous signup requests",
+	})
+)
+
 // SigninController is the Signin route handler
 type SigninController struct {
-	logger *zap.Logger
+	logger            *zap.Logger
+	promSigninTotal   prometheus.Counter
+	promSigninSuccess prometheus.Counter
+	promSigninFail    prometheus.Counter
+	promSigninError   prometheus.Counter
 }
 
 // NewSigninController returns a frsh Signin controller
 func NewSigninController(logger *zap.Logger) *SigninController {
 	return &SigninController{
-		logger: logger,
+		logger:            logger,
+		promSigninTotal:   signinRequests,
+		promSigninSuccess: signinSuccess,
+		promSigninFail:    signinFail,
+		promSigninError:   signinError,
 	}
 }
 
@@ -86,18 +115,22 @@ func validateUser(email string, passwordHash string) (bool, error) {
 // if user not found or not validates, returns the Unauthorized error
 // if found, returns the JWT back. [How to return this?]
 func (ctrl *SigninController) SigninHandler(rw http.ResponseWriter, r *http.Request) {
+	// increment total singin requests
+	ctrl.promSigninTotal.Inc()
 
 	// validate the request first.
 	if _, ok := r.Header["Email"]; !ok {
 		ctrl.logger.Warn("Email was not found in the header")
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write([]byte("Email Missing"))
+		ctrl.promSigninFail.Inc()
 		return
 	}
 	if _, ok := r.Header["Passwordhash"]; !ok {
 		ctrl.logger.Warn("Passwordhash was not found in the header")
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write([]byte("Passwordhash Missing"))
+		ctrl.promSigninFail.Inc()
 		return
 	}
 	// lets see if the user exists
@@ -107,6 +140,7 @@ func (ctrl *SigninController) SigninHandler(rw http.ResponseWriter, r *http.Requ
 		ctrl.logger.Warn("User does not exist", zap.String("email", r.Header["Email"][0]))
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte("User Does not Exist"))
+		ctrl.promSigninFail.Inc()
 		return
 	}
 
@@ -115,6 +149,7 @@ func (ctrl *SigninController) SigninHandler(rw http.ResponseWriter, r *http.Requ
 		ctrl.logger.Warn("Password is wrong", zap.String("email", r.Header["Email"][0]))
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte("Incorrect Password"))
+		ctrl.promSigninFail.Inc()
 		return
 	}
 	tokenString, err := getSignedToken()
@@ -122,10 +157,12 @@ func (ctrl *SigninController) SigninHandler(rw http.ResponseWriter, r *http.Requ
 		ctrl.logger.Error("unable to sign the token", zap.Error(err))
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte("Internal Server Error"))
+		ctrl.promSigninError.Inc()
 		return
 	}
 	ctrl.logger.Info("Token sign", zap.String("token", tokenString), zap.String("email", r.Header["Email"][0]))
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(tokenString))
+	ctrl.promSigninSuccess.Inc()
 }
