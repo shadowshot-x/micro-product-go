@@ -1,0 +1,4 @@
+metadataregion: APAC
+metadatapipelineid: 2022
+signin: signin_total,signin_success,signin_fail,signin_error
+signup: signup_total,signup_success,signup_fail
