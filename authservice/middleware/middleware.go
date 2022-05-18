@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/shadowshot-x/micro-product-go/authservice/jwt"
@@ -40,17 +41,16 @@ func (ctrl *TokenMiddleware) TokenValidationMiddleware(next http.Handler) http.H
 			return
 		}
 
-		check, err := jwt.ValidateToken(token, secret)
+		err := jwt.ValidateToken(token, secret)
 		if err != nil {
-			ctrl.logger.Error("Token Validation Failed", zap.String("token", token))
-			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write([]byte("Token Validation Failed"))
-			return
-		}
-		if !check {
-			ctrl.logger.Warn("Token invalid", zap.String("token", token))
-			rw.WriteHeader(http.StatusUnauthorized)
-			rw.Write([]byte("Token Invalid"))
+			errInString := fmt.Sprint(err)
+			ctrl.logger.Error(errInString, zap.String("token", token))
+			if errInString == jwt.CORRUPT_TOKEN || errInString == jwt.INVALID_TOKEN || errInString == jwt.EXPIRED_TOKEN {
+				rw.WriteHeader(http.StatusUnauthorized)
+			} else {
+				rw.WriteHeader(http.StatusInternalServerError)
+			}
+			rw.Write([]byte(errInString))
 			return
 		}
 		// rw.WriteHeader(http.StatusOK)

@@ -5,10 +5,28 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
+
+const (
+	CORRUPT_TOKEN = "Corrupt Token"
+	INVALID_TOKEN = "Invalid Token"
+	EXPIRED_TOKEN = "Expired Token"
+)
+
+// claims are attributes.
+// Aud - audience
+// Iss - issuer
+// Exp - expiration of the Token
+type ClaimsMap struct {
+	Aud string
+	Iss string
+	Exp string
+}
 
 // GetSecret fetches the value for the JWT_SECRET from the environment variable
 func GetSecret() string {
@@ -16,7 +34,7 @@ func GetSecret() string {
 }
 
 // Function for generating the tokens.
-func GenerateToken(header string, payload map[string]string, secret string) (string, error) {
+func GenerateToken(header string, payload ClaimsMap, secret string) (string, error) {
 	// create a new hash of type sha256. We pass the secret key to it
 	// sha256 is a symmetric cryptographic algorithm
 	h := hmac.New(sha256.New, []byte(secret))
@@ -47,22 +65,22 @@ func GenerateToken(header string, payload map[string]string, secret string) (str
 }
 
 // This helps in validating the token
-func ValidateToken(token string, secret string) (bool, error) {
+func ValidateToken(token string, secret string) error {
 	// JWT has 3 parts separated by '.'
 	splitToken := strings.Split(token, ".")
 	// if length is not 3, we know that the token is corrupt
 	if len(splitToken) != 3 {
-		return false, nil
+		return errors.New(CORRUPT_TOKEN)
 	}
 
 	// decode the header and payload back to strings
 	header, err := base64.StdEncoding.DecodeString(splitToken[0])
 	if err != nil {
-		return false, err
+		return err
 	}
 	payload, err := base64.StdEncoding.DecodeString(splitToken[1])
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	//again create the signature
@@ -74,8 +92,18 @@ func ValidateToken(token string, secret string) (bool, error) {
 
 	// if both the signature dont match, this means token is wrong
 	if signature != splitToken[2] {
-		return false, nil
+		return errors.New(INVALID_TOKEN)
 	}
+
+	//Unmarshal payload into ClaimsMap struct
+	var payloadMap ClaimsMap
+	json.Unmarshal(payload, &payloadMap)
+
+	//Check if token is expired
+	if payloadMap.Exp < fmt.Sprint(time.Now().Unix()) {
+		return errors.New(EXPIRED_TOKEN)
+	}
+
 	// This means the token matches
-	return true, nil
+	return nil
 }
