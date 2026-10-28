@@ -38,14 +38,12 @@ func TestTokenValidation(t *testing.T) {
 	shortExpiryClaims := ClaimsMap{
 		Aud: "frontend.knowsearch.ml",
 		Iss: "knowsearch.ml",
-		Exp: fmt.Sprint(time.Now().Unix()),
+		Exp: fmt.Sprint(time.Now().Add(-1 * time.Minute).Unix()),
 	}
 	shortExpiryToken, err := GenerateToken("HS256", shortExpiryClaims, secret)
 	if err != nil {
 		t.Error("Token generation failed")
 	}
-	//Sleep for 5 seconds to ensure token is expired
-	time.Sleep(5 * time.Second)
 
 	//Expired token must throw 'Token Expired' on validation
 	if EXPIRED_TOKEN != fmt.Sprint(ValidateToken(shortExpiryToken, secret)) {

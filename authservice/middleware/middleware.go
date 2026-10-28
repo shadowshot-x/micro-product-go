@@ -25,13 +25,13 @@ func NewTokenMiddleware(logger *zap.Logger) *TokenMiddleware {
 func (ctrl *TokenMiddleware) TokenValidationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// check if token is present
-		if _, ok := r.Header["Token"]; !ok {
+		token := r.Header.Get("Token")
+		if token == "" {
 			ctrl.logger.Warn("Token was not found in the header")
 			rw.WriteHeader(http.StatusUnauthorized)
 			rw.Write([]byte("Token Missing"))
 			return
 		}
-		token := r.Header["Token"][0]
 
 		secret := jwt.GetSecret()
 		if secret == "" {

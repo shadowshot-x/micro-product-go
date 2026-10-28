@@ -144,7 +144,7 @@ func (ctrl *StreamController) AddCouponList(rw http.ResponseWriter, r *http.Requ
 	// it will be wise to put a string check over here. We dont need to add new streams if region is corrupt in Http request
 	// Also, we need pretty flexible region names. We need to minimize Hardcoding in our application.
 	region := r.Header["Couponregion"][0]
-	if region != "APAC" && region != "NA" && region != "EU" && region == "SA" {
+	if region != "APAC" && region != "NA" && region != "EU" && region != "SA" {
 		// region does not exist.
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write([]byte("Provided Region does not exist"))

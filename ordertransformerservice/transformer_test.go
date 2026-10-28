@@ -1,10 +1,9 @@
 package ordertransformerservice
 
 import (
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -107,25 +106,16 @@ func TestValidation(t *testing.T) {
 
 // in this test, we need to build temporary files
 func TestParser(t *testing.T) {
-	// we need to set up temporary directories for this case.
-	// golang provides this in ioutil.TempDir
-	dir1, err := ioutil.TempDir("./", "")
-	if err != nil {
-		t.Fatalf("Unable to create Temp Dir 1 : %s", dir1)
-	}
-	dir2, err := ioutil.TempDir("./", "")
-	if err != nil {
-		t.Fatalf("Unable to create Temp Dir 1 : %s", dir2)
-	}
-	// we need to make sure the temp directories are removed
-	defer os.RemoveAll(dir1)
-	defer os.RemoveAll(dir2)
+	dir1 := t.TempDir()
+	dir2 := t.TempDir()
+
 	// now we can set up temporary files
 	oTempName := "apacOrder.json"
-	f1, err := os.Create(fmt.Sprintf("./%s/%s", dir1, oTempName))
+	f1, err := os.Create(filepath.Join(dir1, oTempName))
 	if err != nil {
 		t.Fatalf("Unable to create temporary file %s", oTempName)
 	}
+	defer f1.Close()
 	contents := `{
 		"region": "APAC",
 		"orderlist": [{
@@ -137,10 +127,11 @@ func TestParser(t *testing.T) {
 	}`
 	f1.WriteString(contents)
 	rTempName := "apacDirective.yaml"
-	f2, err := os.Create(fmt.Sprintf("./%s/%s", dir2, rTempName))
+	f2, err := os.Create(filepath.Join(dir2, rTempName))
 	if err != nil {
 		t.Fatalf("Unable to create temporary file %s", rTempName)
 	}
+	defer f2.Close()
 	contents = `
 region: APAC
 rulelist:
@@ -148,7 +139,7 @@ rulelist:
 `
 	f2.WriteString(contents)
 	t.Run("Good: All Pass", func(t *testing.T) {
-		oc, rc, err := parser(fmt.Sprintf("./%s/", dir1), fmt.Sprintf("./%s/", dir2))
+		oc, rc, err := parser(dir1+"/", dir2+"/")
 		if err != nil {
 			t.Fatalf("Got unexpected error %v", err)
 		}

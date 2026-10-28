@@ -42,6 +42,7 @@ func (ctrl *UploadController) UploadFile(rw http.ResponseWriter, r *http.Request
 		rw.Write([]byte("Request file of nonexistant/incorrect format"))
 		return
 	}
+	defer file.Close()
 
 	//create the file in the directory and copy the file to the folder
 	f, err := os.OpenFile("./clientclaims/saveimgdir/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
@@ -51,6 +52,7 @@ func (ctrl *UploadController) UploadFile(rw http.ResponseWriter, r *http.Request
 		rw.Write([]byte("Unable to save the file to the servers disk"))
 		return
 	}
+	defer f.Close()
 	io.Copy(f, file)
 
 	ctrl.logger.Info("File Uploaded Successfully", zap.String("file", fmt.Sprintf("./clientclaims/saveimgdir/%s", handler.Filename)))

@@ -48,12 +48,12 @@ func (ctrl *ProductController) InitGormConnection() {
 	}
 	var err error
 	// lets open the conncection
-	db, err = gorm.Open("mysql", GetSecret())
+	db, err = gorm.Open("mysql", sqlsecret)
 	if err != nil {
 		ctrl.logger.Warn("Connection Failed to Open", zap.Error(err))
-	} else {
-		ctrl.logger.Info("Connection Established")
+		return
 	}
+	ctrl.logger.Info("Connection Established")
 
 	//We have the database name in our Environment secret.
 	// Auto Migrate creates a table named products in that Database

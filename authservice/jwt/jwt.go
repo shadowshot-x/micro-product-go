@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -97,10 +98,13 @@ func ValidateToken(token string, secret string) error {
 
 	//Unmarshal payload into ClaimsMap struct
 	var payloadMap ClaimsMap
-	json.Unmarshal(payload, &payloadMap)
+	if err := json.Unmarshal(payload, &payloadMap); err != nil {
+		return errors.New(CORRUPT_TOKEN)
+	}
 
 	//Check if token is expired
-	if payloadMap.Exp < fmt.Sprint(time.Now().Unix()) {
+	expInt, err := strconv.ParseInt(payloadMap.Exp, 10, 64)
+	if err != nil || expInt < time.Now().Unix() {
 		return errors.New(EXPIRED_TOKEN)
 	}
 
